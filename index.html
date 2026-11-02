@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>حرکت بدن</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@700;900&display=swap" rel="stylesheet">
+<style>
+@font-face{font-family:'Vazirmatn';font-weight:700 900;src:local('Vazirmatn'),url('Vazirmatn-Bold.woff2')}
+:root{--green:#93C572;--w:clamp(72px,17.5vw,136px);--w2:clamp(78px,19vw,150px);box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--green);overflow:hidden;font-family:'Vazirmatn',Tahoma,sans-serif}
+#stage{position:relative;width:100%;height:100%;overflow:hidden}
+#s3,#world{position:absolute;inset:0}
+#s3{background:#EEF8E3;opacity:0}
+#world{background:var(--green);z-index:2}
+#cap{position:absolute;top:calc(env(safe-area-inset-top,0px) + 9%);left:0;right:0;text-align:center;font-weight:900;font-size:clamp(30px,9vw,72px);color:#000;opacity:0}
+#word{position:absolute;top:38%;transform:translate(-50%,-50%);font-weight:900;font-size:clamp(40px,12vw,110px);color:#fff;white-space:nowrap}
+#base{text-shadow:0 3px 8px rgba(0,0,0,.25);opacity:0}
+#pcs{position:absolute;inset:0}
+.p{position:absolute;inset:0;display:none;will-change:transform}
+.f{position:absolute;bottom:16%;aspect-ratio:3/5;overflow:visible}
+.f line{stroke-linecap:round}
+.in{left:50%;width:var(--w);margin-left:calc(var(--w) / -2)}
+.at{width:var(--w2)}
+#card{position:absolute;left:0;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.25);display:flex;flex-direction:column;transform-origin:50% 100%}
+.bar{height:16%;background:#000}
+.txt{flex:1;display:flex;align-items:center;justify-content:center;color:#000;font-weight:900;font-size:clamp(22px,6vw,52px);text-align:center;padding:0 10px;line-height:1.5}
+#ball{position:absolute;left:0;top:0;opacity:0}
+#ball svg{width:100%;height:100%;display:block}
+button{position:absolute;z-index:5;top:calc(env(safe-area-inset-top,0px) + 14px);left:14px;border:0;border-radius:20px;padding:8px 16px;background:rgba(255,255,255,.85);color:#3d5a24;font:700 15px 'Vazirmatn',Tahoma,sans-serif;cursor:pointer}
+#hint{position:absolute;z-index:3;bottom:12%;left:0;right:0;text-align:center;color:#fff;font-weight:700;font-size:clamp(16px,4.5vw,24px);text-shadow:0 2px 6px rgba(0,0,0,.3);opacity:0;pointer-events:none}
+#hint span{display:inline-block;animation:pu 1.4s ease-in-out infinite}
+@keyframes pu{50%{transform:scale(1.08)}}
+#s4{position:absolute;inset:0;background:var(--green);opacity:0;display:flex;align-items:center;justify-content:center}
+#tx{width:min(86vw,820px);color:#fff;font-weight:700;font-size:clamp(20px,5.4vw,40px);line-height:2;text-align:right;text-shadow:0 2px 6px rgba(0,0,0,.25)}
+#cr{display:inline-block;width:3px;height:1em;background:#fff;vertical-align:-.15em;margin-inline-start:4px;animation:bl 1s steps(2) infinite}
+@keyframes bl{50%{opacity:0}}
+#vid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;opacity:0;pointer-events:none;padding:0 4vw;box-sizing:border-box}
+#v{width:min(92vw,900px);max-height:58vh;border-radius:14px;background:#000;box-shadow:0 8px 24px rgba(0,0,0,.3);cursor:pointer}
+#vc,#vt{direction:ltr;display:flex;align-items:center;gap:12px;width:min(92vw,900px);justify-content:center}
+#vid button{position:static;width:52px;height:52px;border-radius:50%;padding:0;display:flex;align-items:center;justify-content:center;gap:2px;background:rgba(255,255,255,.9);color:#3d5a24;font:700 13px Vazirmatn,Tahoma,sans-serif}
+#vid button svg{width:22px;height:22px;fill:currentColor}
+#seek{flex:1;accent-color:#fff;height:28px}
+#tm{color:#fff;font:700 14px Vazirmatn,Tahoma,sans-serif;min-width:92px;text-align:center;text-shadow:0 1px 3px rgba(0,0,0,.3)}
+#replay{display:none}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="s3"><div id="cap">داستان اینه!!!</div><div id="ball"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="#fff" stroke="#000" stroke-width="1.6"/><polygon points="10,5 14.5,8.3 12.8,13.6 7.2,13.6 5.5,8.3" fill="#000"/></svg></div></div>
+  <div id="s4"><div id="tx"><span id="ty"></span><i id="cr"></i></div>
+    <div id="vid"><video id="v" playsinline preload="auto"></video><div id="vc"><button id="bb" aria-label="10 ثانیه عقب"></button><button id="bp" aria-label="پخش و توقف"></button><button id="bs" aria-label="ایست"></button><button id="bf" aria-label="10 ثانیه جلو"></button></div><div id="vt"><input type="range" id="seek" min="0" max="1000" value="0"><span id="tm">0:00 / 0:00</span></div></div>
+  </div>
+  <div id="world">
+    <div id="word"><div id="base">حرکت بدن</div><div id="pcs"></div></div>
+    <div id="card"><div class="bar"></div><div class="txt">داستان چیه؟</div></div>
+  </div>
+  <audio id="aud" preload="auto" src="voice.mp3"></audio>
+  <div id="hint"><span>برای شروع، صفحه را لمس کنید</span></div>
+  <button id="skip">رد کردن</button>
+  <button id="replay">پخش دوباره</button>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const world=$('world'),cap=$('cap'),hint=$('hint'),stage=$('stage'),word=$('word'),base=$('base'),pcs=$('pcs'),card=$('card'),s3=$('s3'),ball=$('ball'),skip=$('skip'),replay=$('replay');
+const cl=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),L=(a,b,e)=>a+(b-a)*e,ease=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2;
+const D=Math.PI/180,TXT='حرکت بدن',N=6,R0=3.8,ST_END=3.9,R2=4.2;
+
+const vid=$('vid'),v=$('v'),seek=$('seek'),tm=$('tm'),bp=$('bp'),bb=$('bb'),bf=$('bf'),bs=$('bs');
+const IC={play:'<svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg>',pause:'<svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>'};
+bb.innerHTML='<svg viewBox="0 0 24 24"><path d="M11 6v12L2 12zM21 6v12l-9-6z"/></svg><b>10</b>';
+bf.innerHTML='<svg viewBox="0 0 24 24"><path d="M13 6v12l9-6zM3 6v12l9-6z"/></svg><b>10</b>';
+bs.innerHTML='<svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>';
+const fmt=x=>{x=Math.floor(x||0);return Math.floor(x/60)+':'+String(x%60).padStart(2,'0')};
+let drag=false;
+function setIcon(){bp.innerHTML=v.paused?IC.play:IC.pause;}
+function upd(){if(!drag)seek.value=v.duration?1000*v.currentTime/v.duration:0;tm.textContent=fmt(v.currentTime)+' / '+fmt(v.duration);}
+v.src='lesson.mp4';
+v.addEventListener('loadedmetadata',()=>{if(v.currentTime<.05)v.currentTime=.05;upd();});
+['timeupdate','durationchange','seeked'].forEach(e=>v.addEventListener(e,upd));
+['play','pause','ended'].forEach(e=>v.addEventListener(e,setIcon));
+bp.onclick=v.onclick=()=>{v.paused?v.play():v.pause();};
+bb.onclick=()=>{v.currentTime=Math.max(0,v.currentTime-10);};
+bf.onclick=()=>{v.currentTime=Math.min(v.duration||0,v.currentTime+10);};
+bs.onclick=()=>{v.pause();v.currentTime=0;};
+seek.onpointerdown=()=>{drag=true;};seek.onpointerup=seek.onchange=()=>{drag=false;};
+seek.oninput=()=>{if(v.duration)v.currentTime=v.duration*seek.value/1000;};
+setIcon();
+const cardTxt=card.querySelector('.txt'),s4=$('s4'),aud=$('aud'),ty=$('ty'),txEl=$('tx'),CARD2='حرکت دست';
+/* lesson text, one paragraph at a time; a/b = start/end of that paragraph in the voice recording (seconds) */
+const LINES=[
+ {t:'می‌دونیم که بخش های مختلف بدن انسان حرکت می‌کنن و خم و راست می‌شن. مثلا وقتی ساعد دستمون رو روی بازو خم میکنیم، داریم یک نمونه از حرکات بدن رو انجام میدیم. اما وقتی این کار رو میکنیم، چه تفاوتی روی بازو و زیر اون احساس میکنیم؟',a:0.38,b:14.55},
+ {t:'قسمت های نرم زیر پوست دست، ماهیچه‌ها و قسمت‌های سفت، استخوان‌ها هستند.',a:15.28,b:20.25},
+ {t:'وقتی ساعدمون رو خم میکنیم، ماهیچه‌های روی بازو و پشت اون چه تغییری میکنن؟',a:20.80,b:25.52},
+ {t:'بیاین این فعالیت رو انجام بدیم تا متوجه بشیم.',a:25.99,b:28.30}
+];
+/* ---------- figure with real joints (shoulder/elbow, hip/knee) ---------- */
+function mk(c,cls){
+  const lg=n=>c.simple?`<g data-n="${n}"><line y2="76" stroke="${c.skin}" stroke-width="8"/><g data-n="${n}2"></g></g>`:`<g data-n="${n}"><line y2="38" stroke="${c.skin}" stroke-width="8"/><line y2="22" stroke="${c.sh}" stroke-width="12"/><g data-n="${n}2"><line y2="38" stroke="${c.skin}" stroke-width="8"/><ellipse cx="5" cy="41" rx="9" ry="4.5" fill="${c.shoe}"/></g></g>`;
+  const ar=n=>c.simple?`<g data-n="${n}"><line y2="58" stroke="${c.skin}" stroke-width="8"/><g data-n="${n}2"></g></g>`:`<g data-n="${n}"><line y2="30" stroke="${c.skin}" stroke-width="7"/><line y2="14" stroke="${c.shirt}" stroke-width="11"/><g data-n="${n}2"><line y2="28" stroke="${c.skin}" stroke-width="7"/></g></g>`;
+  const hd=c.hair?`<path d="M-18,-80A18,18 0 0 1 18,-80Q4,-90 -18,-80Z" fill="${c.hair}"/><circle cx="9" cy="-82" r="2.3" fill="#000"/>`:'';
+  const d=document.createElement('div');
+  d.innerHTML=`<svg class="f ${cls}" viewBox="0 0 120 200"><g data-n="root">${lg('lL')}${ar('aL')}<g data-n="torso"><line y2="-62" stroke="${c.shirt}" stroke-width="${c.simple?8:16}"/>${c.simple?'':`<line y2="-14" stroke="${c.sh}" stroke-width="16"/>`}</g><g data-n="head">${c.hollow?`<circle cy="-80" r="16" fill="none" stroke="${c.skin}" stroke-width="6"/>`:`<circle cy="-80" r="18" fill="${c.skin}"/>`}${hd}</g>${lg('lR')}${ar('aR')}</g></svg>`;
+  const el=d.firstChild,r={};el.querySelectorAll('[data-n]').forEach(g=>r[g.dataset.n]=g);
+  return{el,r,simple:c.simple};
+}
+const BK={skin:'#000',sh:'#000',shirt:'#000',shoe:'#000',hollow:1,simple:1};
+const F=mk(BK,'in');world.appendChild(F.el);
+const ath=[
+  mk({skin:'#E8B58C',shirt:'#E53935',sh:'#1E3A8A',shoe:'#222',hair:'#2b1b0e'},'at'),
+  mk({skin:'#C68642',shirt:'#1E88E5',sh:'#F5F5F5',shoe:'#222',hair:'#111'},'at'),
+  mk({skin:'#F1C27D',shirt:'#8E24AA',sh:'#37474F',shoe:'#222',hair:'#8d5524'},'at')
+];
+ath.forEach(a=>s3.appendChild(a.el));
+const parts=['head','torso','aL','aR','lL','lR'].map(n=>F.r[n]);
+const T=(g,x,y,a)=>g.setAttribute('transform',`translate(${x},${y}) rotate(${a})`);
+/* v = [lean,hipL,kneeL,hipR,kneeR,shL,elbL,shR,elbR,air,dx,dy]; 0° = hanging down, negative = forward (right) */
+function setPose(f,v){const r=f.r;if(f.simple){v=v.slice();v[2]=v[4]=v[6]=v[8]=0;}
+  T(r.root,60+v[10],120+v[11],v[0]);
+  const sp=f.simple?0:(v[12]||0);
+  T(r.lL,-6*sp,0,v[1]);T(r.lL2,0,38,v[2]);T(r.lR,6*sp,0,v[3]);T(r.lR2,0,38,v[4]);
+  T(r.aL,-9*sp,-50,v[5]);T(r.aL2,0,30,v[6]);T(r.aR,9*sp,-50,v[7]);T(r.aR2,0,30,v[8]);}
+/* keeps the feet on the ground while the knees bend */
+function plant(v,m){
+  const f=(h,k)=>[38*Math.cos(h*D)+38*Math.cos((h+k)*D),-(38*Math.sin(h*D)+38*Math.sin((h+k)*D))];
+  const a=f(v[1],v[2]),b=f(v[3],v[4]);
+  const Y=m?a[0]:(a[0]+b[0])/2,X=m?a[1]:(a[1]+b[1])/2;
+  return v.slice(0,10).concat([-X,76-Y+v[9]]);
+}
+function KF(arr,P,t){t=((t%P)+P)%P;let i=0;while(i<arr.length-2&&t>=arr[i+1][0])i++;
+  const[t0,a]=arr[i],[t1,b]=arr[i+1],e=ease(cl((t-t0)/(t1-t0)));return a.map((x,j)=>L(x,b[j],e));}
+const S=[0,2,4,2,4,3,-8,-3,-8,0];
+const KJ=[[0,S],[.3,[18,-55,100,-55,100,45,-10,45,-10,0]],[.4,[5,-5,6,-5,6,-165,-10,-165,-10,0]],[.6,[0,-25,45,-25,45,-170,-5,-170,-5,-34]],[.8,[0,-15,30,-15,30,-120,-8,-120,-8,-8]],[.92,[14,-50,90,-50,90,-20,-10,-20,-10,0]],[1.3,S]];
+const SQ=[32,-85,125,-85,125,-80,-10,-80,-10,0];
+const KS=[[0,S],[.3,S],[1.3,SQ],[1.7,SQ],[2.9,S],[3.2,S]];
+const KK=[[0,S],[.5,S],[.95,[-6,4,10,38,95,30,-30,-35,-40,0]],[1.12,[12,6,14,-48,12,-50,-40,40,-20,0]],[1.5,[8,6,14,-62,28,-40,-35,35,-20,0]],[2.1,[2,3,6,-10,12,0,-10,0,-10,0]],[2.6,S]];
+
+/* ---------- layout / state ---------- */
+let aStarted=false,tapT=null,tap2=null,swapped=false,rdy=false,txtDone=false,sched=null,tyI=-1,tyN=-1,OY,FXe,xS,sxH2,X2,tH2,W,H,w,w2,cw,ch,sxT,vB,tB0,TIM,Z0,ZO,r,bx0,by0,raf,t0,targets,disp,rot;
+function layout(){
+  W=innerWidth;H=innerHeight;w=F.el.getBoundingClientRect().width;w2=ath[0].el.getBoundingClientRect().width;
+  cw=Math.min(.48*W,420);ch=Math.min(.34*H,280);
+  card.style.width=cw+'px';card.style.height=ch+'px';card.style.bottom=(.16*H+1.1*w)+'px';
+  sxT=W/2-cw/2-.29*w;vB=.75*W;tB0=R0+2.6;TIM=tB0+(sxT+.7*w)/vB;Z0=TIM+1.8;ZO=Z0+7.3;
+  OY=H-(.16*H+1.1*w+ch/2);
+  FXe=97.7-45;xS=sxT+(FXe-60)*w/120;                       /* where the figure stands after getting up */
+  X2=Math.min(xS+.18*W+.29*w+cw/2,W-cw/2-8);sxH2=X2-cw/2-.29*w;  /* second card: a short run-up away */
+  {const D2=sxH2-xS,ac=2.4*W,vc=1.5*W,act=vc/ac,xc=.5*ac*act*act;tH2=.25+(D2<xc?Math.sqrt(2*D2/ac):act+(D2-xc)/vc);}
+  [.8,.5,.2].forEach((p,i)=>ath[i].el.style.left=(p*W-w2/2)+'px');
+  r=.08*w2;ball.style.width=ball.style.height=(2*r)+'px';bx0=.8*W+.46*w2;by0=H*.84-r;
+}
+function build(){
+  pcs.innerHTML='';
+  for(let i=0;i<N;i++){const d=document.createElement('div');d.className='p';d.textContent=TXT;
+    d.style.clipPath=`inset(0 ${100-(i+1)*100/N}% 0 ${i*100/N}%)`;pcs.appendChild(d);}
+}
+function reset(){
+  cancelAnimationFrame(raf);build();layout();targets=null;tapT=null;tap2=null;swapped=false;rdy=false;sched=null;tyI=tyN=-1;txtDone=false;aud.pause();try{aud.currentTime=0}catch(e){}aStarted=false;v.pause();try{v.currentTime=0}catch(e){}vid.style.opacity=0;vid.style.pointerEvents='none';setIcon();ty.textContent='';txEl.style.opacity=1;s4.style.opacity=0;hint.style.opacity=0;card.style.opacity=1;cardTxt.textContent='داستان چیه؟';hint.firstElementChild.textContent='برای شروع، صفحه را لمس کنید';
+  parts.forEach(p=>p.style.opacity=0);
+  base.style.opacity=0;cap.style.opacity=0;world.style.opacity=1;world.style.transform='';s3.style.opacity=0;
+  disp=[...Array(N)].map(()=>({x:(Math.random()-.5)*260,y:(Math.random()-.8)*200}));
+  rot=[...Array(N)].map(()=>(Math.random()-.5)*160);
+  skip.style.display='';replay.style.display='none';
+}
+function prep(){
+  const wr=word.getBoundingClientRect(),cx=wr.left+wr.width/2,cy=wr.top+wr.height/2;
+  targets=parts.map(p=>{const q=p.getBoundingClientRect();return{x:q.left+q.width/2-cx,y:q.top+q.height/2-cy}});
+  base.style.opacity=0;[...pcs.children].forEach(p=>p.style.display='block');
+}
+function runVec(k,ph,t){
+  const s=Math.sin(ph),c=Math.cos(ph);
+  const kn=cc=>k*(8+75*Math.max(0,cc))+(1-k)*4,el=-(k*80+(1-k)*8);
+  return[12*k,-k*42*s,kn(c),k*42*s,kn(-c),k*40*s+(1-k)*3,el,-k*40*s-(1-k)*3,el,0,0,k*2.5*Math.cos(2*ph),0];
+}
+const FR=t=>[0,14,2,-14,2,14,-3,-14,-3,0,0,Math.sin(t*2.2)*.8,1];   /* standing, facing the viewer: legs like a triangle apex */
+const STAND=[0,7,0,-7,0,4,0,-4,0,0,0,0,0];
+const xA=a=>{const ac=2.4*W,vc=1.5*W,ac_t=vc/ac;return a<ac_t?.5*ac*a*a:.5*ac*ac_t*ac_t+vc*(a-ac_t)};
+const FALL=[-96,8,25,-6,40,-135,-15,-95,-30,0,-38,72,0];
+
+
+/* the run / enter / hit / fall sequence; t counts from the moment the pause before running ends (R0) */
+function runScene(t,sx0,front){
+  const tauA=t-R0,base=front?FR(t):STAND;let v,sx=sx0;
+  if(tauA<=0)v=base;
+  else if(t<tB0){
+    const e=ease(cl(tauA/.5)),rv=runVec(cl(tauA/.6),2*Math.PI*4.6*tauA,t);
+    v=base.map((q,j)=>L(q,rv[j],e));v[12]=front?1-e:0;
+    sx=sx0+xA(Math.max(0,tauA-.25));
+  }else if(t<TIM){v=runVec(1,2*Math.PI*4.6*(t-tB0),t);sx=-.7*w+vB*(t-tB0);}
+  else{
+    const q=t-TIM,e=Math.pow(cl(q/.75),1.7),b=q>.75?-7*Math.exp(-9*(q-.75))*Math.abs(Math.sin(16*(q-.75))):0;
+    v=runVec(1,2*Math.PI*4.6*(TIM-tB0),t).map((a,j)=>L(a,FALL[j],e));v[11]+=b;sx=sxT;
+  }
+  return{v,sx};
+}
+/* lying on the floor -> two failed attempts -> sits up -> pivots up on stiff legs and stands */
+function standUp(T){
+  const A0=-95,FX=97.7,FY0=185.4;
+  const u1=cl((T-.9)/1),u2=cl((T-1.9)/1),u3=cl((T-2.9)/1),e3=ease(u3);
+  let lean=-96+Math.sin(Math.PI*cl(u1/.4))*16+Math.sin(Math.PI*cl((u1-.45)/.55))*38;
+  lean=L(lean,-8,ease(u2));lean=L(lean,0,e3);
+  const a=L(A0,0,e3)+Math.sin(u3*Math.PI*3)*4*(1-u3),FY=L(FY0,196,e3);
+  const tm=(T>.9&&T<2.9)?5*Math.sin(T*16):0,k=ease(cl(T/.9));
+  const sL=L(-135,L(-80,4,e3)-lean+tm,k),sR=L(-95,L(-80,-4,e3)-lean-tm,k);
+  return{v:[lean,a+7-lean,0,a-7-lean,0,sL,0,sR,0,0,L(FX,FXe,e3)+76*Math.sin(a*D)-60,FY-76*Math.cos(a*D)-120,0],sx:sxT};
+}
+
+/* second attempt, same screen: stand, run, hit the quickly fading-in card, fall */
+function run2(tau){
+  let v,sx;
+  if(tau<=0){v=STAND;sx=xS;}
+  else if(tau<tH2){
+    const e=ease(cl(tau/.5)),rv=runVec(cl(tau/.6),2*Math.PI*4.6*tau,tau);
+    v=STAND.map((q,j)=>L(q,rv[j],e));v[12]=0;sx=xS+xA(Math.max(0,tau-.25));
+  }else{
+    const q=tau-tH2,e=Math.pow(cl(q/.75),1.7),b=q>.75?-7*Math.exp(-9*(q-.75))*Math.abs(Math.sin(16*(q-.75))):0;
+    v=runVec(1,2*Math.PI*4.6*tH2,tau).map((a,j)=>L(a,FALL[j],e));v[11]+=b;sx=sxH2;
+  }
+  return{v,sx};
+}
+function typeStep(tx){
+  if(!sched)sched=LINES.map(l=>({ch:Array.from(l.t),s:l.a,e:l.b}));
+  let i=sched.length-1;while(i>0&&tx<sched[i].s)i--;
+  const o=sched[i],n=Math.floor(cl((tx-o.s)/(o.e-o.s))*o.ch.length),last=i===sched.length-1;
+  if(tyI!==i||tyN!==n){ty.textContent=o.ch.slice(0,n).join('');tyI=i;tyN=n;}
+  txEl.style.opacity=last?1-cl((tx-o.e-1)/.6):1-cl((tx-o.e)/.45);
+  if(last){const f=cl((tx-o.e-1.5)/.6);vid.style.opacity=f;vid.style.pointerEvents=f>.5?'auto':'none';if(tx>o.e+2.1)txtDone=true;}
+}
+function frame(now){
+  const rt=(now-t0)/1000;let t=tapT===null?-1:(now-tapT)/1000;
+  /* 1) title fades in */
+  if(tapT===null){base.style.opacity=cl((rt-.3)/1.8);hint.style.opacity=cl((rt-2.4)/.8);}else hint.style.opacity=0;
+  /* 2) the word splits into pieces that fly together and become the figure */
+  const M0=0,M1=2;
+  if(t>=M0&&t<M1+.2){
+    if(!targets)prep();
+    const u=cl((t-M0)/(M1-M0)),e1=ease(cl(u/.35)),e2=ease(cl((u-.35)/.65));
+    [...pcs.children].forEach((p,i)=>{
+      const tx=L(disp[i].x*e1,targets[i].x,e2),ty=L(disp[i].y*e1,targets[i].y,e2);
+      p.style.transform=`translate(${tx}px,${ty}px) rotate(${L(rot[i]*e1,0,e2)}deg) scale(${L(1+.1*e1,.3,e2)})`;
+      const g=Math.round(255*(1-e2));p.style.color=`rgb(${g},${g},${g})`;
+      p.style.opacity=1-cl((e2-.88)/.12);           /* pieces stay solid until they have joined */
+      parts[i].style.opacity=cl((e2-.5)/.4);
+    });
+  }else if(t>=M1+.2&&pcs.children.length){pcs.innerHTML='';parts.forEach(p=>p.style.opacity=1);base.style.opacity=0;}
+  const tr=t,T2=tap2===null?-1:(now-tap2)/1000,tau=T2-R2,ZB=R2+tH2+1.8;
+  rdy=tr>ZO+2.4&&tap2===null;
+  let tl=Math.min(t,Z0),st;
+  if(T2>=0){st=T2<ST_END?standUp(T2):run2(Math.min(tau,tH2+1.8));}
+  if(!st)st=runScene(tl,W/2,true);
+  setPose(F,st.v);
+  F.el.style.transform=`translateX(${st.sx-W/2}px)`;
+  let cx,q2;
+  if(T2>=R2){cx=X2;q2=Math.max(0,tau-tH2);}
+  else{cx=1.5*W-W*ease(cl((tl-(R0+1.6))/.9));q2=Math.max(0,tl-TIM);}
+  card.style.transform=`translateX(${cx-cw/2}px) rotate(${3*Math.exp(-6*q2)*Math.sin(30*q2)}deg)`;
+  if(T2>=0){
+    if(T2<R2)card.style.opacity=1-cl(T2/.7);                 /* first card fades out */
+    else{if(!swapped){cardTxt.textContent=CARD2;swapped=true;}card.style.opacity=cl((tau-.1)/.3);}  /* second card fades in fast */
+  }
+  /* 4) zoom into the card and pass through it */
+  const u=T2>=0?ease(cl((T2-ZB)/2.4)):(tr<ZO?ease(cl((tr-Z0)/2.4)):1-ease(cl((tr-ZO)/2.4))),ft=cl((u-.72)/.28);
+  world.style.transformOrigin=`${T2>=R2?X2:W/2}px ${OY}px`;
+  world.style.transform=`scale(${Math.exp(u*Math.log(16))})`;
+  world.style.opacity=1-ft;
+  s3.style.opacity=T2>=0?0:ft;s3.style.transform=`scale(${L(1.5,1,ease(ft))})`;
+  s4.style.opacity=T2>=0?ft:0;s4.style.transform=`scale(${L(1.5,1,ease(ft))})`;
+  if(T2>=0&&T2-(ZB+1.7)>=0){
+    if(!aStarted){aStarted=true;try{aud.currentTime=0}catch(e){}aud.muted=false;const pr=aud.play();if(pr)pr.catch(()=>{});}
+    typeStep(T2-(ZB+1.7));
+  }
+  skip.style.display=(rdy||tap2!==null)?'none':'';replay.style.display=(rdy||txtDone)?'block':'none';
+  if(rdy){hint.firstElementChild.textContent='برای ادامه، صفحه را لمس کنید';hint.style.opacity=1;}
+  /* 5) three athletes */
+  const s3t=Math.max(0,tr-(Z0+1.7));
+  setPose(ath[0],plant(KF(KK,2.6,s3t),1));
+  setPose(ath[1],plant(KF(KJ,1.3,s3t),0));
+  setPose(ath[2],plant(KF(KS,3.2,s3t),0));
+  const kt=s3t%2.6;let bx=bx0,by=by0;
+  if(kt>1.12){const k=cl((kt-1.12)/1.1);bx=bx0+k*Math.min(.28*W,W-bx0-2*r);by=by0-4*1.6*w2*k*(1-k);}
+  ball.style.transform=`translate(${bx-r}px,${by-r}px)`;
+  ball.style.opacity=cl(kt/.3)*(1-cl((kt-2.1)/.3));
+  const cp=ease(cl((s3t-1.6)/.6));cap.style.opacity=cp;cap.style.transform=`scale(${L(.6,1,cp)})`;
+  raf=requestAnimationFrame(frame);
+}
+function play(){reset();t0=performance.now();raf=requestAnimationFrame(frame);}
+skip.onclick=()=>{tapT=performance.now()-(ZO+2.6)*1000;};
+replay.onclick=play;
+stage.addEventListener('pointerdown',e=>{
+  if(e.target.closest('button,#vid'))return;
+  if(!aStarted)try{aud.muted=true;const pr=aud.play();if(pr)pr.then(()=>{aud.pause();aud.currentTime=0;aud.muted=false}).catch(()=>{aud.muted=false});}catch(x){}   /* lets the browser play sound later */
+  if(tapT===null){if((performance.now()-t0)/1000>2.2)tapT=performance.now();}
+  else if(rdy&&tap2===null)tap2=performance.now();
+});
+play();
+</script>
+</body>
+</html>
