@@ -1,0 +1,43 @@
+{
+  "name": "harekat-badan",
+  "productName": "HarekatBadan",
+  "version": "1.0.0",
+  "description": "حرکت بدن - علوم تجربی پنجم ابتدایی",
+  "main": "main.js",
+  "author": "Harekat Badan",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win portable --publish never"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "ir.harekatbadan.app",
+    "productName": "HarekatBadan",
+    "asar": false,
+    "files": [
+      "index.html",
+      "main.js",
+      "icon.png",
+      "voice.mp3",
+      "lesson.mp4",
+      "Vazirmatn-Bold.woff2"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "icon.ico"
+    },
+    "portable": {
+      "artifactName": "HarekatBadan.exe"
+    }
+  }
+}
